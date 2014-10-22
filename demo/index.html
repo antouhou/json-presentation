@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Демо json-presentation</title>
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="../json-presentation.js"></script>
+    <style type="text/css">
+        body {
+            font-family: Verdana;
+        }
+        #slide-container {
+            background-color: #e7e7e7;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .controls-button {
+            text-align: center;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            margin: 25px 0;
+            padding: 10px;
+            border: 3px solid #fff;
+            position: absolute;
+            cursor: pointer;
+            box-shadow: 0 0 10px #999;
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            user-select: none;
+            color: #7288ff;
+            background-color: #3f51b5;
+            font-weight: 700;
+            font-size: 20px;
+        }
+        .controls-button:hover {
+            border-color: #e7e7e7;
+            background-color: #3347B5;
+        }
+        .controls-button:active {
+            background-color: #283bb5;
+            margin: 26px -1px;
+        }
+        #controls {
+            width: 100%;
+            background-color: #3f51b5;
+            position: fixed;
+            height: 100px;
+            bottom: 0;
+        }
+        #progress-bar {
+            position: absolute;
+            height: 5px;
+            width: 100%;
+            top: 0;
+            background-color: #7288ff;
+        }
+        #controls-prev {
+            left: 5%;
+        }
+        #controls-next {
+            right: 5%;
+        }
+        #slide-count {
+            color: #7288ff;
+            position: absolute;
+            text-align: center;
+            font-weight: 700;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -100px;
+        }
+        .slidecontainer {
+            display: inline-block;
+            background-color: #fff;
+            box-shadow: 0 0 5px #333;
+        }
+        .slide {
+            width: 1000px;
+            background-color: #fff;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="slide-container">
+        <div id="controls">
+            <div id="progress-bar"></div>
+            <div id="controls-prev" class="controls-button">
+                <
+            </div>
+            <div id="controls-next" class="controls-button">
+                >
+            </div>
+            <div id="slide-count">Слайд: 10/10</div>
+        </div>
+    </div>
+</body>
+</html>
