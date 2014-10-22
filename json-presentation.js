@@ -3,6 +3,7 @@
 
 $(function(){
   var presentations = [];
+
   /**
    * Настройки
    */
@@ -12,10 +13,10 @@ $(function(){
   };
   /**
    * Рабочая облась презентации
-   * @type {{create}}
+   * @type {Object}
    */
   var layout = {
-    init: function init(next) {
+    init: function init() {
       this.container = $('#slide-container');
       this.controlsArea = $('#controls');
       this.controlButtons = {
@@ -28,11 +29,19 @@ $(function(){
       this.presentationsList = $('#presentations-list');
       this.blackLayer = $('#black-layer');
       this.listBackward = $('#list-backward-button');
+    },
+    /**
+     * Отрисовывает рабочую область презентации - задает высоту элементов
+     */
+    load: function build() {
+      this.init();
+      this.container.css({'height':$(window).height()-this.controlsArea.height()});
+      this.presentationsList.css({'height':$(window).height()});
       this.listButton.on('click',(function(){
         this.presentationsList.animate({'left':'0'},200);
         this.controlsArea.animate({'left':this.presentationsList.width()},200);
         this.container.animate({'left':this.presentationsList.width()},200);
-        this.blackLayer.fadeTo(200,0.5);
+        this.blackLayer.fadeTo(200,0.7);
       }).bind(this));
       this.listBackward.on('click',(function(){
         this.blackLayer.animate({'left':0},200);
@@ -41,27 +50,18 @@ $(function(){
         this.controlsArea.animate({'left':0},200);
         this.container.animate({'left':0},200);
       }).bind(this));
-      next();
     },
     /**
-     * Отрисовывает рабочую область презентации - задает высоту элементов
+     * Отрисовать рабочую область заново
      */
-    build: function build() {
-      this.init((function(){
-        this.container.css({'height':$(window).height()-this.controlsArea.height()});
-        this.presentationsList.css({'height':$(window).height()});
-      }).bind(this));
+    reload: function reload() {
+      this.listBackward.off('click');
+      this.listButton.off('click');
+      this.load();
     }
   };
 
   var Slide = function Slide(slideData) {
-    //Производим проверку данных
-    //Тут нет каких-то данных, которые требовали бы проверки
-    try {
-      //assert();
-    } catch (e) {
-      return alert(e);
-    }
     this.caption = slideData.caption || '(Нет заголовка)';
     this.body = slideData.text || '(Пусто)';
     this.DOM = $(
@@ -92,6 +92,7 @@ $(function(){
     }
     this.id = presentationId;
     this.slides = [];
+    //Устанавливаем текущий слайд в позицию 0
     this.currentSlide = 0;
     //Создаем контейнер для слайдов
     this.body = $('<div class="presentation-body" id="presentation-'+this.id+'">');
@@ -109,8 +110,15 @@ $(function(){
       layout.slideCount.text('Слайд: '+(this.currentSlide+1)+'/'+this.slides.length);
       //Устанавливаем позицию прогрессбара
       layout.progressBar.css({'width':((this.currentSlide+1)/this.slides.length*100)+'%'});
+      //Задаем размеры контейнеру со слайдами
+      $('.slide-container').css({
+          'width':layout.container.width(),
+          'height':layout.container.height()
+        });
       //Выставляем высоту слайдам
       $('.slide').css({'height':layout.container.height()});
+      //Переключаем к позиции текущего слайда
+      this.showSlide(this.currentSlide);
       //Прикрепляем функции показа слайдов на нажатия кнопок
       layout.controlButtons.prev.on('click',(function(){
         this.showPrevSlide();
@@ -142,9 +150,33 @@ $(function(){
      * @param slideNumber
      */
     this.showSlide = function showSlide(slideNumber) {
+      this.currentSlide = slideNumber;
       this.body.animate({'margin-left':-layout.container.width()*slideNumber});
       layout.slideCount.text('Слайд: '+(this.currentSlide+1)+'/'+this.slides.length);
       layout.progressBar.animate({'width':((this.currentSlide+1)/this.slides.length*100)+'%'});
+    };
+    /**
+     * Выгружает презентацию из рабочей области
+     * @param positionReset {Boolean} сбрасывать ли позицию слайда
+     */
+    this.unload = function unload(positionReset) {
+      //Скрываем тело презентации
+      this.body.css({'display':'none'});
+      //Убираем обработчики событий с кнопок
+      layout.controlButtons.prev.off('click');
+      layout.controlButtons.next.off('click');
+      //Сбрасываем позицию слайда в изначальное положение
+      if (positionReset) {
+        this.currentSlide = 0;
+      }
+    };
+    /**
+     * Перезагрузить визуальное отображение презентации
+     * @param positionReset {Boolean} сбрасывать ли позицию слайда
+     */
+    this.reload = function reload(positionReset) {
+      this.unload(positionReset);
+      this.load();
     };
 
     //Добавляем в презентацию слайды
@@ -158,8 +190,8 @@ $(function(){
 
   /**
    * Функция для проверки условий
-   * @param condition
-   * @param message
+   * @param condition {Boolean} условие
+   * @param message {String} Сообщение об ошибке, если условие не выполняется
    */
   var assert = function assert (condition,message) {
     if (!condition) {
@@ -168,8 +200,11 @@ $(function(){
     }
   };
 
+  //Задаем текущую презентацию
+  var currentPresentation = 0;
+
   //Отрисовываем область
-  layout.build();
+  layout.load();
   //Читаем JSON-файл с презентациями
   $.getJSON(options.pathToPresentations).done(function(data){
     //Делаем проверку данных из файла
@@ -188,16 +223,15 @@ $(function(){
       layout.presentationsList.append('<li>'+presentations[i].name+'</div>');
     }
     //Загружаем первую презентацию, что бы фон превью в меню выбор презентации не пустовал
-    presentations[0].load();
+    presentations[currentPresentation].load();
 
   }).error(function(){
     alert('Не удалось загрузить файл с презентациями!');
   });
 
-  //Биндим действия на события
+  //Перерисовываем рабочую область и презентацию при изменении размеров окна
   $(window).resize(function(){
-    //todo: сделать перезагрузку всей презентации при изменении размеров окна
-    layout.build();
-    console.log('layout was rebuild due to window size has changed');
+    layout.reload();
+    presentations[currentPresentation].reload();
   });
 });
