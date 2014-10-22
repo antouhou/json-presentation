@@ -22,15 +22,17 @@ $(function(){
         prev: $('#controls-prev'),
         next: $('#controls-next')
       };
+      this.slideCount = $('#slide-count');
+      this.progressBar = $('#progress-bar');
       next();
     },
     /**
      * Отрисовывает рабочую область презентации - задает фон, создает контролы и т.д.
      */
     build: function build() {
-      this.init(function(){
-        layout.container.css({'height':$(window).height()});
-      });
+      this.init((function(){
+        layout.container.css({'height':$(window).height()-this.controlsArea.height()});
+      }).bind(this));
     }
   };
 
@@ -54,7 +56,12 @@ $(function(){
       '<div class="slide-body">'+this.body+'</div>' +
       '</div>' +
       '</div>');
-    this.DOM.css({'width':layout.container.width(),'height':layout.container.height(),'display':'inline-block'});
+    this.DOM.css({
+      'width':layout.container.width(),
+      'height':layout.container.height(),
+      'display':'inline-block',
+      'overflow':'hidden'
+    });
   };
 
   var Presentation = function Presentation(data,presentationId){
@@ -80,6 +87,13 @@ $(function(){
       this.body.css({'width':layout.container.width()*data.slides.length});
       //Присоединяем контейнер для слайдов к рабочей области презентации
       layout.container.append(this.body);
+      //Показывем надпись "Слайды: 10/10"
+      layout.slideCount.text('Слайд: '+(this.currentSlide+1)+'/'+this.slides.length);
+      //Устанавливаем позицию прогрессбара
+      layout.progressBar.css({'width':((this.currentSlide+1)/this.slides.length*100)+'%'});
+      //Выставляем высоту всем слайдам
+      $('.slide').css({'height':layout.container.height()});
+      //Прикрепляем функции показа слайдов на нажатия кнопок
       layout.controlButtons.prev.on('click',(function(){
         this.showPrevSlide();
       }).bind(this));
@@ -111,6 +125,8 @@ $(function(){
      */
     this.showSlide = function showSlide(slideNumber) {
       this.body.animate({'margin-left':-layout.container.width()*slideNumber});
+      layout.slideCount.text('Слайд: '+(this.currentSlide+1)+'/'+this.slides.length);
+      layout.progressBar.animate({'width':((this.currentSlide+1)/this.slides.length*100)+'%'});
     };
 
     //Добавляем в презентацию слайды
