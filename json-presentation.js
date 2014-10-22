@@ -69,6 +69,7 @@ $(function(){
       return alert('При обработке данных презентации "'+this.name+'" возникли ошибки. '+e);
     }
     this.slides = [];
+    this.currentSlide = 0;
     //Создаем контейнер для слайдов
     this.body = $('<div class="presentation-body" id="presentation-'+this.id+'">');
     /**
@@ -80,11 +81,29 @@ $(function(){
       //Присоединяем контейнер для слайдов к рабочей области презентации
       layout.container.append(this.body);
       layout.controlButtons.prev.on('click',(function(){
-        this.showSlide(0);
+        this.showPrevSlide();
       }).bind(this));
       layout.controlButtons.next.on('click',(function(){
-        this.showSlide(1);
+        this.showNextSlide();
       }).bind(this));
+    };
+    /**
+     * Показать следующий слайд
+     */
+    this.showNextSlide = function showNextSlide() {
+      if (this.currentSlide < this.slides.length-1) {
+        this.currentSlide++;
+        this.showSlide(this.currentSlide);
+      }
+    };
+    /**
+     * Показать предыдущий слайд
+     */
+    this.showPrevSlide = function showPrevSlide() {
+      if (this.currentSlide>0) {
+        this.currentSlide--;
+        this.showSlide(this.currentSlide);
+      }
     };
     /**
      * Показать слайд с номером slideNumber
