@@ -24,14 +24,32 @@ $(function(){
       };
       this.slideCount = $('#slide-count');
       this.progressBar = $('#progress-bar');
+      this.listButton = $('#list');
+      this.presentationsList = $('#presentations-list');
+      this.blackLayer = $('#black-layer');
+      this.listBackward = $('#list-backward-button');
+      this.listButton.on('click',(function(){
+        this.presentationsList.animate({'left':'0'},200);
+        this.controlsArea.animate({'left':this.presentationsList.width()},200);
+        this.container.animate({'left':this.presentationsList.width()},200);
+        this.blackLayer.fadeTo(200,0.5);
+      }).bind(this));
+      this.listBackward.on('click',(function(){
+        this.blackLayer.animate({'left':0},200);
+        this.blackLayer.fadeOut(200);
+        this.presentationsList.animate({'left':-this.presentationsList.width()},200);
+        this.controlsArea.animate({'left':0},200);
+        this.container.animate({'left':0},200);
+      }).bind(this));
       next();
     },
     /**
-     * Отрисовывает рабочую область презентации - задает фон, создает контролы и т.д.
+     * Отрисовывает рабочую область презентации - задает высоту элементов
      */
     build: function build() {
       this.init((function(){
-        layout.container.css({'height':$(window).height()-this.controlsArea.height()});
+        this.container.css({'height':$(window).height()-this.controlsArea.height()});
+        this.presentationsList.css({'height':$(window).height()});
       }).bind(this));
     }
   };
@@ -46,11 +64,8 @@ $(function(){
     }
     this.caption = slideData.caption || '(Нет заголовка)';
     this.body = slideData.text || '(Пусто)';
-    this.show = function show() {
-      //Двигаем презентацию на нужную позицию
-    };
     this.DOM = $(
-      '<div id="p1s1" class="slide-container">' + //todo: сделать слайдам идентификаторы
+      '<div class="slide-container">' +
       '<div class="slide">' +
       '<h1>'+this.caption+'</h1>' +
       '<div class="slide-body">'+this.body+'</div>' +
@@ -68,30 +83,33 @@ $(function(){
     //Производим проверку данных
     try {
       this.name = data.name || 'Без имени';
-      this.id = presentationId;
+      assert(typeof presentationId === 'number','Не передан ид презентации');
       assert(Array.isArray(data.slides), 'В презентации отсутствуют слайды');
       assert(data.slides.length>0,'В презентации нет ни одного слайда');
       assert(typeof presentationId==='number','В констурктор презентации не передан id презентации');
     } catch (e) {
       return alert('При обработке данных презентации "'+this.name+'" возникли ошибки. '+e);
     }
+    this.id = presentationId;
     this.slides = [];
     this.currentSlide = 0;
     //Создаем контейнер для слайдов
     this.body = $('<div class="presentation-body" id="presentation-'+this.id+'">');
+    //Не отображаем презентацию, пока она не выбрана
+    this.body.css({'display':'none'});
     /**
      * Создает DOM презентации и присоеденяет его к DOMу основного документа
      */
     this.load = function load() {
-      //Задаем контейнеру ширину
-      this.body.css({'width':layout.container.width()*data.slides.length});
+      //Задаем контейнеру ширину и делаем презентацию видимой
+      this.body.css({'width':layout.container.width()*data.slides.length,'display':'block'});
       //Присоединяем контейнер для слайдов к рабочей области презентации
       layout.container.append(this.body);
       //Показывем надпись "Слайды: 10/10"
       layout.slideCount.text('Слайд: '+(this.currentSlide+1)+'/'+this.slides.length);
       //Устанавливаем позицию прогрессбара
       layout.progressBar.css({'width':((this.currentSlide+1)/this.slides.length*100)+'%'});
-      //Выставляем высоту всем слайдам
+      //Выставляем высоту слайдам
       $('.slide').css({'height':layout.container.height()});
       //Прикрепляем функции показа слайдов на нажатия кнопок
       layout.controlButtons.prev.on('click',(function(){
@@ -165,9 +183,12 @@ $(function(){
     }
     //Продолжаем выполнение, если ошибок не произошло
     for (var i=0; i<data.length; i++) {
+      //Создаем презентации
       presentations.push(new Presentation(data[i],i));
-      presentations[i].load();
+      layout.presentationsList.append('<li>'+presentations[i].name+'</div>');
     }
+    //Загружаем первую презентацию, что бы фон превью в меню выбор презентации не пустовал
+    presentations[0].load();
 
   }).error(function(){
     alert('Не удалось загрузить файл с презентациями!');
