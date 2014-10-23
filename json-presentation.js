@@ -22,25 +22,28 @@ $(function () {
    */
   var layout = {
     init: function init() {
-      this.container = $('#slide-container');
-      this.controlsArea = $('#controls');
+      this.container = $('<div id="slide-container"></div>');
+      this.controlsArea = $('<div id="controls"></div>');
+      this.progressBar = $('<div id="progress-bar"></div>');
+      this.listButton = $('<div id="list">К списку презентаций</div>');
       this.controlButtons = {
-        prev: $('#controls-prev'),
-        next: $('#controls-next')
+        prev: $('<div id="controls-prev" class="controls-button"><</div>'),
+        next: $('<div id="controls-next" class="controls-button">></div>')
       };
-      this.slideCount = $('#slide-count');
-      this.progressBar = $('#progress-bar');
-      this.listButton = $('#list');
-      this.presentationsList = $('#presentations-list');
-      this.blackLayer = $('#black-layer');
-      this.listBackward = $('#list-backward-button');
+      this.slideCount = $('<div id="slide-count"><!-- В этом месте будет показан текущий слайд/слайдов всего --></div>');
+      this.blackLayer = $('<div id="black-layer"></div>');
+      this.presentationsList = $('<div id="presentations-list"><h3>Список презентаций</h3></div>');
+      this.listBackward = $('<div id="list-backward-button" class="controls-button">Отмена</div>');
+      this.presentationsList.append(this.listBackward);
+      this.container.append([this.controlsArea,this.blackLayer,this.presentationsList]);
+      this.controlsArea.append([this.progressBar,this.listButton,this.controlButtons.prev,this.controlButtons.next,this.slideCount]);
+      $('body').append(this.container);
     },
 
     /**
      * Отрисовывает рабочую область презентации - задает высоту элементов
      */
-    load: function build() {
-      this.init();
+    load: function load() {
       this.container.css({'height': $(window).height() - this.controlsArea.height()});
       this.presentationsList.css({'height': $(window).height()});
       this.listButton.on('click', list.show);
@@ -245,7 +248,7 @@ $(function () {
     this.body.on('click',this.action.bind(this));
   };
 
-
+  layout.init();
   //Отрисовываем область
   layout.load();
   //Читаем JSON-файл с презентациями
