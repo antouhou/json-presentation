@@ -79,12 +79,21 @@
             display: inline-block;
             background-color: #fff;
             box-shadow: 0 0 5px #333;
+
         }
         .slide {
             width: 1000px;
             background-color: #fff;
             margin: 0 auto;
             padding: 20px;
+            font-family: Palatino, serif;
+        }
+        .slide h1 {
+            font-size: 45px;
+            font-weight: 700;
+        }
+        .slide .slide-body {
+            font-size: 20px;
         }
         #presentations-list {
             position: fixed;
@@ -94,6 +103,26 @@
             color: #7288ff;
             background-color: #3f51b5;
             z-index: 10;
+        }
+        #presentations-list li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        #presentations-list li:hover {
+            border-right: solid 3px #fff;
+            background-color: #3347B5;
+            padding-right: 5px;
+            padding-left: 12px;
+        }
+        #presentations-list li:active {
+            background-color: #283bb5;
+            padding-right: 3px;
+            padding-left: 14px;
+        }
+        #presentations-list .active-class {
+            border-right: solid 3px #fff;
+            padding-right: 7px;
+            padding-left: 10px;
         }
         #black-layer {
             position: fixed;
