@@ -1,5 +1,3 @@
-//todo: сделать возможность быстрого перепрыгывания между слайдами
-
 (function($) {
   $(function () {
 
@@ -44,6 +42,7 @@
         this.container = $('<div class="presentation-container"></div>');
         this.controlsArea = $('<div class="controls"></div>');
         this.progressBar = $('<div class="progress-bar"></div>');
+        this.slideJumpButtons = $('<div class="slide-jump"></div>');
         this.listButton = $('<div class="list-button">К списку презентаций</div>');
         this.controlButtons = {
           prev: $('<div class="controls-button controls-prev"><</div>'),
@@ -67,6 +66,7 @@
         );
         this.controlsArea.append(
           this.progressBar,
+          this.slideJumpButtons,
           this.listButton,
           this.controlButtons.prev,
           this.controlButtons.next,
@@ -187,6 +187,8 @@
         $('.slide').css({'height': layout.container.height()});
         //Переключаем к позиции текущего слайда
         this.showSlide(this.currentSlide);
+        //Показываем кнопки для прыжков между слайдами
+        this.jumpButtons.show();
         //Прикрепляем функции показа слайдов на нажатия кнопок
         layout.controlButtons.prev.on('click', (function () {
           this.showPrevSlide();
@@ -225,6 +227,8 @@
         this.body.animate({'margin-left': -layout.container.width() * slideNumber});
         layout.slideCount.text('Слайд: ' + (this.currentSlide + 1) + '/' + this.slides.length);
         layout.progressBar.animate({'width': ((this.currentSlide + 1) / this.slides.length * 100) + '%'});
+        $('.slide-jump-button-active').removeClass('slide-jump-button-active');
+        this.jumpButtons.buttons[slideNumber].body.addClass('slide-jump-button-active');
         if (slideNumber === 0) {
           layout.controlButtons.prev.addClass('controls-button-disabled');
           //Сделать неактивным кнопку "Предыдущий"
@@ -253,6 +257,7 @@
         //Убираем обработчики событий с кнопок
         layout.controlButtons.prev.off('click');
         layout.controlButtons.next.off('click');
+        this.jumpButtons.hide();
         //Сбрасываем позицию слайда в изначальное положение
         if (positionReset) {
           this.body.css({'margin-left': '0'});
@@ -269,15 +274,40 @@
         this.load();
       };
 
+      this.jumpButtons = {
+        buttons: [],
+        body: $('<div style="display: none"></div>'),
+        show: function show() {
+          this.body.css({'display':'block'});
+        },
+        hide: function hide() {
+          this.body.css({'display':'none'});
+        }
+      };
+
       //Добавляем в презентацию слайды
       for (var i = 0; i < data.slides.length; i++) {
         //Создаем новый объект слайда
         this.slides[i] = new Slide(data.slides[i]);
         //Присоединяем тело слайда к телу презентации
         this.body.append(this.slides[i].body);
+        console.log(this.id);
+        this.jumpButtons.buttons.push(new JumpButton(i));
+        this.jumpButtons.body.append(this.jumpButtons.buttons[i].body);
       }
+      layout.slideJumpButtons.append(this.jumpButtons.body);
     };
 
+    var JumpButton = function JumpButton(slideId) {
+      this.body = $('<div class="slide-jump-button"></div>');
+      this.slideId = slideId;
+      this.showSlide = function ShowSlide() {
+        presentations[currentPresentation].showSlide(slideId);
+        $('.slide-jump-button-active').removeClass('slide-jump-button-active');
+        this.body.addClass('slide-jump-button-active');
+      }.bind(this);
+      this.body.on('click',this.showSlide);
+    };
     /**
      * Конструктор пункта списка презентации и превью
      * @param presentationName
