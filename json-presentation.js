@@ -5,7 +5,12 @@ $(function () {
 
   "use strict";
 
+  //Массив, в котором будут лежать все презентации
   var presentations = [];
+  //Массив, в котром будут лежать пункты списка презентаций
+  var presentationsList = [];
+  //Задаем текущую презентацию
+  var currentPresentation = 0;
 
   /**
    * Настройки
@@ -13,6 +18,18 @@ $(function () {
   var options = {
     //Путь к json-файлу с презентациями
     pathToPresentations: '../presentations.json'
+  };
+
+  /**
+   * Функция для проверки условий
+   * @param condition {Boolean} условие
+   * @param message {String} Сообщение об ошибке, если условие не выполняется
+   */
+  var assert = function assert(condition, message) {
+    if (!condition) {
+      message = message || "Assert failed";
+      throw new Error(message);
+    }
   };
 
   /**
@@ -246,27 +263,11 @@ $(function () {
   };
 
   /**
-   * Функция для проверки условий
-   * @param condition {Boolean} условие
-   * @param message {String} Сообщение об ошибке, если условие не выполняется
+   * Конструктор пункта списка презентации и превью
+   * @param presentationName
+   * @param presentationId
+   * @constructor
    */
-  var assert = function assert(condition, message) {
-    if (!condition) {
-      message = message || "Assert failed";
-      throw new Error(message);
-    }
-  };
-
-  //Задаем текущую презентацию
-  var currentPresentation = 0;
-
-  //todo: переместить в область инициализации переменных
-  var presentationsList = [];
-  var reloadAllPreviews = function reloadAllPreviews() {
-    for (var i = 0; i < presentationsList.length; i++) {
-      presentationsList[i].setPreview();
-    }
-  };
   var ListItem = function ListItem(presentationName, presentationId) {
     this.body = $('<li>' + presentationName + '</li>');
     //Генерируем тело превью
@@ -315,8 +316,18 @@ $(function () {
     this.body.on('click', this.action.bind(this));
   };
 
+  /**
+   * Перерисовать все превью презентаций
+   */
+  var reloadAllPreviews = function reloadAllPreviews() {
+    for (var i = 0; i < presentationsList.length; i++) {
+      presentationsList[i].setPreview();
+    }
+  };
+
+  //Создаем разметку
   layout.init();
-  //Отрисовываем область
+  //Отрисовываем элементы
   layout.load();
   //Читаем JSON-файл с презентациями
   $.getJSON(options.pathToPresentations).done(function (data) {
@@ -336,16 +347,15 @@ $(function () {
       presentationsList[i] = new ListItem(presentations[i].name, i);
       layout.presentationsListContainer.append(presentationsList[i].body);
     }
-    //Загружаем первую презентацию, что бы фон превью в меню выбор презентации не пустовал
+    //Отрисовываем первую презентацию
     presentations[currentPresentation].load();
-
   }).error(function () {
     alert('Не удалось загрузить файл с презентациями!');
   });
 
   //Перерисовываем рабочую область и презентацию при изменении размеров окна
   $(window).resize(function () {
-    //Перезагружаем лейаут
+    //Перерисовываем элементы
     layout.reload();
     //Перезагружаем презентацию
     presentations[currentPresentation].reload();
