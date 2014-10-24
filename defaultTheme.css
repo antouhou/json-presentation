@@ -86,6 +86,21 @@ body {
     margin: 26px -1px;
 }
 
+.controls-button-disabled {
+    cursor: default;
+    opacity: 0.3;
+}
+
+.controls-button-disabled:hover {
+    border-color: #fff;
+    background-color: #3f51b5;
+}
+
+.controls-button-disabled:active {
+    margin: 25px 0;
+    background-color: #3f51b5;
+}
+
 .slide-count {
     position: absolute;
     top: 50%;
@@ -155,17 +170,6 @@ body {
 
 .list-backward-button:active {
     margin: 8px 39px;
-}
-
-.button-up {
-    position: relative;
-    margin: 5px auto;
-    transform: rotate(180deg);
-}
-
-.button-down {
-    position: relative;
-    margin: 5px auto;
 }
 
 /*
