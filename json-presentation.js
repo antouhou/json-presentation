@@ -3,13 +3,6 @@
 
     "use strict";
 
-    //Массив, в котором будут лежать все презентации
-    var presentations = [];
-    //Массив, в котром будут лежать пункты списка презентаций
-    var presentationsList = [];
-    //Задаем текущую презентацию
-    var currentPresentation = 0;
-
     /**
      * Настройки
      */
@@ -17,6 +10,13 @@
       //Путь к json-файлу с презентациями
       pathToPresentations: '../presentations.json'
     };
+
+    //Массив, в котором будут лежать все презентации
+    var presentations = [];
+    //Массив, в котром будут лежать пункты списка презентаций
+    var presentationsList = [];
+    //Задаем текущую презентацию
+    var currentPresentation = 0;
 
     /**
      * Функция для проверки условий
@@ -29,6 +29,41 @@
         throw new Error(message);
       }
     };
+
+    /**
+     * Функция, возвращающая функцию func, которая будет запускаться не чаще, чем раз в time
+     * @param func - функция, к котрой требуется применить дебаунс
+     * @param time - интервал запуска функции
+     */
+    var debounce = function debounce(func, time) {
+        //Время, через которое будет запущена функция, будет храниться в замыкании
+        var willBeCalled = 0;
+        return function deBounced() {
+          var now = Date.now();
+          //Сохраняем контекст выхова для дальнейшей передачи в вызываемую функицию
+          var context = this;
+          //Сохраняем аргументы для дальнейшей передачи
+          var args = arguments;
+          if (willBeCalled < now) {
+            willBeCalled = now + time;
+            setTimeout(function () {
+              func.apply(context, args);
+            }, time);
+          }
+        };
+    };
+
+    /**
+     * Создаем функцию, котрая будет обрабатывать изменение разеров окна
+     */
+    var debouncedResize = debounce(function () {
+      //Перерисовываем элементы
+      layout.reload();
+      //Перезагружаем презентацию
+      presentations[currentPresentation].reload();
+      //Перезагружаем превью презентаций
+      reloadAllPreviews();
+    },500);
 
     /**
      * Рабочая облась презентации
@@ -415,13 +450,6 @@
     });
 
     //Перерисовываем рабочую область и презентацию при изменении размеров окна
-    $(window).resize(function () {
-      //Перерисовываем элементы
-      layout.reload();
-      //Перезагружаем презентацию
-      presentations[currentPresentation].reload();
-      //Перезагружаем превью презентаций
-      reloadAllPreviews();
-    });
+    $(window).resize(debouncedResize);
   });
 })($);
