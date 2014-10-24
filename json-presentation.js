@@ -1,6 +1,5 @@
 //todo: сделать возможность быстрого перепрыгывания между слайдами
-//todo: сделать высоту списка презентациий фиксированной, прикурить туда скролл
-//todo: вынести все построение DOMа презентации в скрипт, вынести все стили оформления в отдельный файл
+//todo: делать кнопки неактивными, если показ предыдущего/следующего слайда недоступен
 
 $(function () {
 
@@ -12,31 +11,50 @@ $(function () {
    * Настройки
    */
   var options = {
-    //Путь к папке с json-файлом с презентациями
+    //Путь к json-файлу с презентациями
     pathToPresentations: '../presentations.json'
   };
 
   /**
    * Рабочая облась презентации
-   * @type {Object}
    */
   var layout = {
+    /**
+     * Создает разметку
+     */
     init: function init() {
-      this.container = $('<div id="slide-container"></div>');
-      this.controlsArea = $('<div id="controls"></div>');
-      this.progressBar = $('<div id="progress-bar"></div>');
-      this.listButton = $('<div id="list">К списку презентаций</div>');
+      //Создаем элементы
+      this.container = $('<div class="presentation-container"></div>');
+      this.controlsArea = $('<div class="controls"></div>');
+      this.progressBar = $('<div class="progress-bar"></div>');
+      this.listButton = $('<div class="list-button">К списку презентаций</div>');
       this.controlButtons = {
-        prev: $('<div id="controls-prev" class="controls-button"><</div>'),
-        next: $('<div id="controls-next" class="controls-button">></div>')
+        prev: $('<div class="controls-button controls-prev"><</div>'),
+        next: $('<div class="controls-button controls-next">></div>')
       };
-      this.slideCount = $('<div id="slide-count"><!-- В этом месте будет показан текущий слайд/слайдов всего --></div>');
-      this.blackLayer = $('<div id="black-layer"></div>');
-      this.presentationsList = $('<div id="presentations-list"><h3>Список презентаций</h3></div>');
-      this.listBackward = $('<div id="list-backward-button" class="controls-button">Отмена</div>');
-      this.presentationsList.append(this.listBackward);
-      this.container.append([this.controlsArea,this.blackLayer,this.presentationsList]);
-      this.controlsArea.append([this.progressBar,this.listButton,this.controlButtons.prev,this.controlButtons.next,this.slideCount]);
+      this.slideCount = $('<div class="slide-count"></div>');
+      this.blackLayer = $('<div class="black-layer"></div>');
+      this.presentationsList = $('<div class="presentations-list"></div>');
+      this.presentationsListHeading = $('<h3>Список презентаций</h3>');
+      this.presentationsListContainer = $('<div class="presentations-list-container"></div>');
+      this.listBackward = $('<div class="list-backward-button controls-button">Отмена</div>');
+      //Присоединяем все элементы в нужном порядке
+      this.presentationsList.append(
+        this.presentationsListHeading,
+        this.presentationsListContainer,
+        this.listBackward);
+      this.container.append(
+        this.controlsArea,
+        this.blackLayer,
+        this.presentationsList
+      );
+      this.controlsArea.append(
+        this.progressBar,
+        this.listButton,
+        this.controlButtons.prev,
+        this.controlButtons.next,
+        this.slideCount
+      );
       $('body').append(this.container);
     },
 
@@ -46,8 +64,15 @@ $(function () {
     load: function load() {
       this.container.css({'height': $(window).height() - this.controlsArea.height()});
       this.presentationsList.css({'height': $(window).height()});
+      this.presentationsListContainer.css({
+        'height': this.presentationsList.height() - this.listBackward.outerHeight(true) - this.presentationsListHeading.outerHeight(true)
+      });
       this.listButton.on('click', list.show);
       this.listBackward.on('click', list.hide);
+      this.blackLayer.css({
+        'height': $(window).height(),
+        'width': $(window).width()
+      });
     },
 
     /**
@@ -62,7 +87,6 @@ $(function () {
 
   /**
    * Список всех презентаций
-   * @type {{}}
    */
   var list = {
     show: function show() {
@@ -80,24 +104,28 @@ $(function () {
     }
   };
 
+  /**
+   * Конструктор слайда
+   * @param slideData
+   * @constructor
+   */
   var Slide = function Slide(slideData) {
     this.caption = slideData.caption || '(Нет заголовка)';
-    this.body = slideData.text || '(Пусто)';
-    this.DOM = $(
-        '<div class="slide-container">' +
-        '<div class="slide">' +
-        '<h1>' + this.caption + '</h1>' +
-        '<div class="slide-body">' + this.body + '</div>' +
-        '</div>' +
-        '</div>');
-    this.DOM.css({
-      'width': layout.container.width(),
-      'height': layout.container.height(),
-      'display': 'inline-block',
-      'overflow': 'hidden'
-    });
+    this.text = slideData.text || '(Пусто)';
+    //Контент отеделен от body, потому что он так же будет использоваться для рендера превью презентации
+    this.content = '<div class="slide">' +
+                     '<h1>' + this.caption + '</h1>' +
+                     '<div class="slide-body">' + this.text + '</div>' +
+                   '</div>';
+    this.body = $('<div class="slide-container">' + this.content + '</div>');
   };
 
+  /**
+   * Конструктор презентации
+   * @param data
+   * @param presentationId
+   * @constructor
+   */
   var Presentation = function Presentation(data, presentationId) {
     //Производим проверку данных
     try {
@@ -117,8 +145,11 @@ $(function () {
     this.body = $('<div class="presentation-body" id="presentation-' + this.id + '">');
     //Не отображаем презентацию, пока она не выбрана
     this.body.css({'display': 'none'});
+
     /**
-     * Создает DOM презентации и присоеденяет его к DOMу основного документа
+     * Создает разметку презентации и присоеденяет её к размтеке контейнера;
+     * Устанваливает обработчики на кнопки;
+     * Задает размер слайдов;
      */
     this.load = function load() {
       //Устанавливаем текущую перезентацию
@@ -133,8 +164,7 @@ $(function () {
       layout.progressBar.css({'width': ((this.currentSlide + 1) / this.slides.length * 100) + '%'});
       //Задаем размеры контейнеру со слайдами
       $('.slide-container').css({
-        'width': layout.container.width(),
-        'height': layout.container.height()
+        'width': layout.container.width()
       });
       //Выставляем высоту слайдам
       $('.slide').css({'height': layout.container.height()});
@@ -181,7 +211,7 @@ $(function () {
     };
 
     /**
-     * Выгружает презентацию из рабочей области
+     * Убирает обработчики событий с кнопок, опционально сбрасывает положение презентации к началу
      * @param positionReset {Boolean} сбрасывать ли позицию слайда
      */
     this.unload = function unload(positionReset) {
@@ -192,6 +222,7 @@ $(function () {
       layout.controlButtons.next.off('click');
       //Сбрасываем позицию слайда в изначальное положение
       if (positionReset) {
+        this.body.css({'margin-left': '0'});
         this.currentSlide = 0;
       }
     };
@@ -210,7 +241,7 @@ $(function () {
       //Создаем новый объект слайда
       this.slides[i] = new Slide(data.slides[i]);
       //Присоединяем тело слайда к телу презентации
-      this.body.append(this.slides[i].DOM);
+      this.body.append(this.slides[i].body);
     }
   };
 
@@ -231,21 +262,57 @@ $(function () {
 
   //todo: переместить в область инициализации переменных
   var presentationsList = [];
-  var ListItem = function ListItem (presentationName, presentationId) {
+  var reloadAllPreviews = function reloadAllPreviews() {
+    for (var i = 0; i < presentationsList.length; i++) {
+      presentationsList[i].setPreview();
+    }
+  };
+  var ListItem = function ListItem(presentationName, presentationId) {
     this.body = $('<li>' + presentationName + '</li>');
+    //Генерируем тело превью
+    this.preview = $('<div class="presentation-preview">' + presentations[presentationId].slides[0].content + '</div>');
+    //Добавляем превью в основной контейнер
+    layout.container.append(this.preview);
+    //Функция, устанавливающая позицию превью; Выделено в отдельную функцию, т.к понадобиться при измнении размеров окна
+    this.setPreview = function setPreview() {
+      this.preview.css({
+        'height': layout.container.height(),
+        'top': ($(window).height() - layout.container.height()) / 2,
+        'left': layout.presentationsList.width() + ($(window).width() - this.preview.width())
+      });
+    };
+    this.setPreview();
+    this.showPreview = function showPreview() {
+      this.preview.css({'display': 'block'}).animate({
+        left: ((layout.container.width() + 200 - this.preview.width()) / 2),
+        opacity: 1
+      }, 400);
+    };
+    this.hidePreview = function hidePreview() {
+      //Анимация затухания и смещения влево
+      this.preview.animate({left: 0, opacity: 0}, 400, (function () {
+        //После завершения анимации перемещаем превью в изначальное положение
+        this.preview.css({
+          'display': 'none',
+          'left': layout.presentationsList.width() + ($(window).width() - this.preview.width())
+        });
+      }).bind(this));
+    };
     this.action = function action() {
       //Убирем активный класс с предыдущего выбранного элемента
       presentationsList[currentPresentation].body.removeClass('active-class');
       //Выгружаем из рабочей области текущую презентацию
       presentations[currentPresentation].unload(true);
-      //Заружаем выбранную
+      //Заружаем выбранную презентацию
       presentations[presentationId].load();
       //Добавляем текущему элементу активный класс
       this.body.addClass('active-class');
       //Прячем список презентаций
       list.hide();
+      this.hidePreview();
     };
-    this.body.on('click',this.action.bind(this));
+    this.body.hover(this.showPreview.bind(this), this.hidePreview.bind(this));
+    this.body.on('click', this.action.bind(this));
   };
 
   layout.init();
@@ -266,8 +333,8 @@ $(function () {
     for (var i = 0; i < data.length; i++) {
       //Создаем презентации
       presentations.push(new Presentation(data[i], i));
-      presentationsList[i] = new ListItem(presentations[i].name,i);
-      layout.presentationsList.append(presentationsList[i].body);
+      presentationsList[i] = new ListItem(presentations[i].name, i);
+      layout.presentationsListContainer.append(presentationsList[i].body);
     }
     //Загружаем первую презентацию, что бы фон превью в меню выбор презентации не пустовал
     presentations[currentPresentation].load();
@@ -278,7 +345,11 @@ $(function () {
 
   //Перерисовываем рабочую область и презентацию при изменении размеров окна
   $(window).resize(function () {
+    //Перезагружаем лейаут
     layout.reload();
+    //Перезагружаем презентацию
     presentations[currentPresentation].reload();
+    //Перезагружаем превью презентаций
+    reloadAllPreviews();
   });
 });
