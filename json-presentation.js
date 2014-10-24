@@ -1,5 +1,4 @@
 (function($) {
-  $(function () {
 
     "use strict";
 
@@ -408,5 +407,4 @@
       //Перезагружаем превью презентаций
       reloadAllPreviews();
     });
-  });
 })($);
