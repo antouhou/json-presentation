@@ -297,7 +297,6 @@
         this.slides[i] = new Slide(data.slides[i]);
         //Присоединяем тело слайда к телу презентации
         this.body.append(this.slides[i].body);
-        console.log(this.id);
         //Создаем кнопку для быстрого перехода к этому слайду
         this.jumpButtons.buttons.push(new JumpButton(i));
         //Прикрепляем её к области отображения кнопок
