@@ -52,6 +52,50 @@ body {
     user-select: none;
 }
 
+.controls-button:hover {
+    border-color: #e7e7e7;
+    background-color: #3347B5;
+}
+
+.controls-button:active {
+    background-color: #283bb5;
+}
+
+.controls-button-disabled {
+    cursor: default;
+    opacity: 0.3;
+}
+
+.controls-button-disabled:hover {
+    border-color: #fff;
+    background-color: #3f51b5;
+}
+
+.controls-button-disabled:active {
+    margin: 0;
+    background-color: #3f51b5;
+}
+.controls-prev {
+    top: 25px;
+    left: 5%;
+}
+
+.controls-prev:active {
+    margin: 1px 0 0 -1px;
+}
+
+.controls-next {
+    top: 25px;
+    right: 5%;
+}
+
+.controls-next:active {
+    margin: 1px -1px 0 0;
+}
+
+/*
+Кнопки быстрого переключения между слайдами
+*/
 .slide-jump {
     margin: 10px auto 0 auto;
     text-align: center;
@@ -75,54 +119,12 @@ body {
     margin: 3px;
 }
 
-.controls-button:hover {
-    border-color: #e7e7e7;
-    background-color: #3347B5;
-}
-
-.controls-button:active {
-    background-color: #283bb5;
-}
-
 .progress-bar {
     position: absolute;
     top: 0;
     width: 100%;
     height: 5px;
     background-color: #7288ff;
-}
-
-.controls-prev {
-    top: 25px;
-    left: 5%;
-}
-
-.controls-prev:active {
-    margin: 1px 0 0 -1px;
-}
-
-.controls-next {
-    top: 25px;
-    right: 5%;
-}
-
-.controls-next:active {
-    margin: 1px -1px 0 0;
-}
-
-.controls-button-disabled {
-    cursor: default;
-    opacity: 0.3;
-}
-
-.controls-button-disabled:hover {
-    border-color: #fff;
-    background-color: #3f51b5;
-}
-
-.controls-button-disabled:active {
-    margin: 0;
-    background-color: #3f51b5;
 }
 
 .slide-count {
@@ -185,14 +187,14 @@ body {
     border-left: solid 3px #fff;
 }
 
-.list-backward-button {
+.presentations-list-backward-button {
     bottom: 0;
     margin: 10px 37px;
     width: 100px;
     border-radius: 0;
 }
 
-.list-backward-button:active {
+.presentations-list-backward-button:active {
     margin: 8px 39px;
 }
 
