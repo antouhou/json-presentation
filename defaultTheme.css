@@ -1,0 +1,276 @@
+body {
+    font-family: Verdana;
+}
+
+/*
+Контейнер для презентации
+*/
+.presentation-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #e7e7e7;
+}
+
+/*
+Контейнер для слайдов
+*/
+.slide-container {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+}
+
+/*
+Элементы управления
+*/
+.controls {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background-color: #3f51b5;
+}
+
+.controls-button {
+    position: absolute;
+    padding: 10px;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background-color: #3f51b5;
+    box-shadow: 0 0 10px #999;
+    color: #7288ff;
+    text-align: center;
+    font-weight: 700;
+    font-size: 20px;
+    cursor: pointer;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
+.controls-button:hover {
+    border-color: #e7e7e7;
+    background-color: #3347B5;
+}
+
+.controls-button:active {
+    background-color: #283bb5;
+}
+
+.controls-button-disabled {
+    cursor: default;
+    opacity: 0.3;
+}
+
+.controls-button-disabled:hover {
+    border-color: #fff;
+    background-color: #3f51b5;
+}
+
+.controls-button-disabled:active {
+    margin: 0;
+    background-color: #3f51b5;
+}
+.controls-prev {
+    top: 25px;
+    left: 5%;
+}
+
+.controls-prev:active {
+    margin: 1px 0 0 -1px;
+}
+
+.controls-next {
+    top: 25px;
+    right: 5%;
+}
+
+.controls-next:active {
+    margin: 1px -1px 0 0;
+}
+
+/*
+Кнопки быстрого переключения между слайдами
+*/
+.slide-jump {
+    margin: 10px auto 0 auto;
+    text-align: center;
+    width: 80%;
+}
+.slide-jump-button {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    display: inline-block;
+    cursor: pointer;
+    background-color: #283bb5;
+    border-radius: 50%;
+}
+.slide-jump-button:hover {
+    border: 2px solid #7288ff;
+    margin: 3px;
+}
+.slide-jump-button-active {
+    border: 2px solid #fff;
+    margin: 3px;
+}
+
+.progress-bar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #7288ff;
+}
+
+.slide-count {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    margin-top: -10px;
+    margin-left: -100px;
+    width: 200px;
+    height: 20px;
+    color: #7288ff;
+    text-align: center;
+    font-weight: 700;
+}
+
+/*
+Список презентаций
+*/
+.presentations-list {
+    position: fixed;
+    left: -200px;
+    z-index: 11;
+    width: 200px;
+    height: 1000px;
+    background-color: #3f51b5;
+    color: #7288ff;
+}
+
+.presentations-list-container {
+    overflow-y: auto;
+    width: 100%;
+}
+
+.presentations-list h3 {
+    margin: 10px;
+}
+
+.presentations-list li {
+    padding: 10px;
+    list-style-type: none;
+    cursor: pointer;
+}
+
+.presentations-list li:hover {
+    padding-right: 5px;
+    padding-left: 12px;
+    border-left: solid 3px #fff;
+    background-color: #3347B5;
+}
+
+.presentations-list li:active {
+    padding-right: 3px;
+    padding-left: 14px;
+    background-color: #283bb5;
+}
+
+.presentations-list .active-class {
+    padding-right: 7px;
+    padding-left: 10px;
+    border-left: solid 3px #fff;
+}
+
+.presentations-list-backward-button {
+    bottom: 0;
+    margin: 10px 37px;
+    width: 100px;
+    border-radius: 0;
+}
+
+.presentations-list-backward-button:active {
+    margin: 8px 39px;
+}
+
+/*
+Превью презентации
+*/
+.presentation-preview {
+    position: fixed;
+    z-index: 10;
+    display: none;
+    width: 1000px;
+    opacity: 0;
+}
+
+/*
+Затеменение при открытии списка
+*/
+.black-layer {
+    position: fixed;
+    z-index: 9;
+    display: none;
+    background-color: black;
+}
+
+/*
+Кнопка открытия списка презентаций
+*/
+.list-button {
+    position: absolute;
+    top: 25px;
+    left: -25px;
+    padding: 5px;
+    width: 85px;
+    height: 40px;
+    border-bottom: 3px solid #fff;
+    background-color: #3f51b5;
+    color: #7288ff;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+    transform: rotate(-90deg);
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
+.list-button:hover {
+    border-color: #e7e7e7;
+    background-color: #3347B5;
+}
+
+.list-button:active {
+    left: -27px;
+    background-color: #283bb5;
+}
+
+/*
+Слайд
+*/
+.slide {
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 20px;
+    width: 1000px;
+    background-color: #fff;
+    box-shadow: 0 0 10px #999;
+    font-family: Palatino, serif;
+}
+
+.slide h1 {
+    margin: 0;
+    padding-bottom: 20px;
+    font-weight: 700;
+    font-size: 45px;
+}
+
+.slide .slide-body {
+    font-size: 20px;
+}
