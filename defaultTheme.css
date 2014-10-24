@@ -61,20 +61,6 @@ body {
     background-color: #283bb5;
 }
 
-.controls-button-disabled {
-    cursor: default;
-    opacity: 0.3;
-}
-
-.controls-button-disabled:hover {
-    border-color: #fff;
-    background-color: #3f51b5;
-}
-
-.controls-button-disabled:active {
-    margin: 0;
-    background-color: #3f51b5;
-}
 .controls-prev {
     top: 25px;
     left: 5%;
@@ -93,6 +79,20 @@ body {
     margin: 1px -1px 0 0;
 }
 
+.controls-button-disabled {
+    cursor: default;
+    opacity: 0.3;
+}
+
+.controls-button-disabled:hover {
+    border-color: #fff;
+    background-color: #3f51b5;
+}
+
+.controls-button-disabled:active {
+    margin: 0;
+    background-color: #3f51b5;
+}
 /*
 Кнопки быстрого переключения между слайдами
 */
